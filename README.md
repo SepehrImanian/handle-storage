@@ -11,7 +11,7 @@ chmod 775 storage
 ./storage
 ```
 
-And this is default config in script before run script (storage count ,lv,vg names)
+And this is default config in script, before run script (storage count ,lv,vg names) change value
 ```
 # default counts of /dev/sdb
 ALL_DEFAULT_STORAGE_COUNT=6
