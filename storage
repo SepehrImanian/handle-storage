@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # default counts of /dev/sdb
-ALL_DEFAULT_STORAGE_COUNT=6
+ALL_DEFAULT_STORAGE_COUNT=10
 
 
 # default storage config
@@ -16,10 +16,15 @@ storage_extend() {
    echo "storage size is ${STORAGE_SIZE}G"
    echo "storage number is ${STORAGE_NAME_NUMBER}"
    echo "---------------------- format and extend -----------------------"
+   echo "--------------  fdisk ${STORAGE_NAME} < ./lvm.txt --------------"
    fdisk ${STORAGE_NAME} < ./lvm.txt
+   echo "--------- pvcreate ${STORAGE_NAME}${STORAGE_NAME_NUMBER} -------"
    pvcreate ${STORAGE_NAME}${STORAGE_NAME_NUMBER}
+   echo "-- vgextend ${VG_NAME} ${STORAGE_NAME}${STORAGE_NAME_NUMBER} ---"
    vgextend ${VG_NAME} ${STORAGE_NAME}${STORAGE_NAME_NUMBER}
+   echo "---- lvextend -L +${STORAGE_SIZE}G /dev/${VG_NAME}/${LV_NAME} ---"
    lvextend -L +${STORAGE_SIZE}G /dev/${VG_NAME}/${LV_NAME}
+   echo "------------- resize2fs /dev/${VG_NAME}/${LV_NAME} --------------"
    resize2fs /dev/${VG_NAME}/${LV_NAME}
 }
 
@@ -38,7 +43,7 @@ if [[ $ALL_STORAGE_COUNT > $ALL_DEFAULT_STORAGE_COUNT ]]; then
        echo "how much do you want to add (Gig) (number) : example (10,20,200)G"
        read storage_size
        STORAGE_SIZE=$storage_size
-       echo "what is the name of stotage you want to add: example (sda, sdb, sdc, sdd)"
+       echo "what is the name of stotage you want to add: example (sda, sdb, sdc, sdd, sde)"
        read storage_name
        if [[ $storage_name = sda ]]; then
           echo "you choosed sda"
@@ -67,6 +72,13 @@ if [[ $ALL_STORAGE_COUNT > $ALL_DEFAULT_STORAGE_COUNT ]]; then
           read storage_number
           STORAGE_NAME_NUMBER=$storage_number
           STORAGE_NAME="/dev/sdd"
+          storage_extend
+       elif [[ $storage_name = sde ]]; then
+          echo "you choosed sde"
+          echo "which number you wana choose : example (1,2,3) ==> (sde1,sde2,...)"
+          read storage_number
+          STORAGE_NAME_NUMBER=$storage_number
+          STORAGE_NAME="/dev/sde"
           storage_extend
        else
 	  echo "not choose"
