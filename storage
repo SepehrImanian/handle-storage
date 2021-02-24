@@ -76,4 +76,6 @@ if [[ $ALL_STORAGE_COUNT > $ALL_DEFAULT_STORAGE_COUNT ]]; then
        echo "------------- exit ---------------"
        exit 0
     fi
+else
+    echo "no storage added :("
 fi
