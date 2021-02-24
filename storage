@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# default counts of /dev/sdb
+ALL_DEFAULT_STORAGE_COUNT=6
+
+
+# default storage config
+VG_NAME="ubuntu-vg"
+LV_NAME="ubuntu-lv"
+
+
+#---------------------------- dont touch under of this line please --------------------------------
+
+storage_extend() {
+   echo "storage name is ${STORAGE_NAME}${STORAGE_NAME_NUMBER}"
+   echo "storage size is ${STORAGE_SIZE}G"
+   echo "storage number is ${STORAGE_NAME_NUMBER}"
+   echo "---------------------- format and extend -----------------------"
+   fdisk ${STORAGE_NAME} < ./lvm.txt
+   pvcreate ${STORAGE_NAME}${STORAGE_NAME_NUMBER}
+   vgextend ${VG_NAME} ${STORAGE_NAME}${STORAGE_NAME_NUMBER}
+   lvextend -L +${STORAGE_SIZE}G /dev/${VG_NAME}/${LV_NAME}
+   resize2fs /dev/${VG_NAME}/${LV_NAME}
+}
+
+
+# count of all current storage
+ALL_STORAGE_COUNT=`lsblk | grep sd | wc -l`
+
+
+if [[ $ALL_STORAGE_COUNT > $ALL_DEFAULT_STORAGE_COUNT ]]; then
+    echo "--------------------- New storage added ------------------------"
+    lsblk | grep sd
+    
+    echo "do you want fromat and added this storage to '/' : (yes , no)"
+    read check
+    if [[ $check = yes ]]; then
+       echo "how much do you want to add (Gig) (number) : example (10,20,200)G"
+       read storage_size
+       STORAGE_SIZE=$storage_size
+       echo "what is the name of stotage you want to add: example (sda, sdb, sdc, sdd)"
+       read storage_name
+       if [[ $storage_name = sda ]]; then
+          echo "you choosed sda"
+	  echo "which number you wana choose : example (1,2,3) ==> (sda1,sda2,...)"
+	  read storage_number
+	  STORAGE_NAME_NUMBER=$storage_number
+	  STORAGE_NAME="/dev/sda"
+          storage_extend
+       elif [[ $storage_name = sdb ]]; then
+	  echo "you choosed sdb"
+	  echo "which number you wana choose : example (1,2,3) ==> (sdb1,sdb2,...)"
+          read storage_number
+          STORAGE_NAME_NUMBER=$storage_number
+	  STORAGE_NAME="/dev/sdb"
+	  storage_extend
+       elif [[ $storage_name = sdc ]]; then
+	  echo "you choosed sdc"
+	  echo "which number you wana choose : example (1,2,3) ==> (sdc1,sdc2,...)"
+          read storage_number
+          STORAGE_NAME_NUMBER=$storage_number
+	  STORAGE_NAME="/dev/sdc"
+	  storage_extend
+       elif [[ $storage_name = sdd ]]; then
+          echo "you choosed sdd"
+          echo "which number you wana choose : example (1,2,3) ==> (sdd1,sdd2,...)"
+          read storage_number
+          STORAGE_NAME_NUMBER=$storage_number
+          STORAGE_NAME="/dev/sdd"
+          storage_extend
+       else
+	  echo "not choose"
+	  exit 1
+       fi
+    else
+       echo "------------- exit ---------------"
+       exit 0
+    fi
+fi
