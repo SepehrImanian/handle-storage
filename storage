@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# default counts of /dev/sdb
+# default counts of storage
 ALL_DEFAULT_STORAGE_COUNT=10
 
 
